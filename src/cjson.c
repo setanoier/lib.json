@@ -28,6 +28,7 @@ static PyObject* unmarshall(const char* json_str) {
     return parse_value(&json_str);
 }
 
+
 void skip_whitespaces(const char** json_ptr) {
     regex_t regex;
     regmatch_t match[1];
@@ -171,11 +172,7 @@ static PyObject* parse_list(const char** json_str) {
         return NULL;
     }
 
-    while (**json_str && **json_str != ']') { 
-        PyErr_SetString(PyExc_RuntimeError, "Invalid JSON string");
-        return NULL;
-    }
-
+    while (**json_str && **json_str != ']') {
         start_of_the_key(json_str);
 
         PyObject* value = parse_value(json_str);
@@ -264,8 +261,8 @@ static PyObject* serialize_object(PyObject* dict) {
             return NULL;
         }
 
-        char* key_cstr = PyUnicode_AsUTF8(key_str);
-        char* value_cstr = PyUnicode_AsUTF8(value_str);
+        const char* key_cstr = PyUnicode_AsUTF8(key_str);
+        const char* value_cstr = PyUnicode_AsUTF8(value_str);
 
         if (i > 0) {
             strcat(json_str, ",");
@@ -282,14 +279,45 @@ static PyObject* serialize_object(PyObject* dict) {
 
     strcat(json_str, "}");
 
-    Py_DECREF(items);
+
     PyObject* result = PyUnicode_FromString(json_str);
     free(json_str);
     return result;
 }
 
 static PyObject* serialize_list(PyObject* list) {
+    if (!PyList_Check(list)) {
+        PyErr_SetString(PyExc_RuntimeError, "Expected a list");
+        return NULL;
+    }
 
+    Py_ssize_t size = PyList_Size(list);
+    char* json_str = malloc(BUFFER_SIZE);
+
+    json_str[0] = '\0';
+
+    strcat(json_str, "[");
+    for (Py_ssize_t i = 0; i < size; ++i) {
+        PyObject* value = PyList_GetItem(list, i);
+        PyObject* value_str = serialize_value(value);
+
+        if (!value_str) {
+            free(value_str);
+            return NULL;
+        }
+
+        const char* value_cstr = PyUnicode_AsUTF8(value_str);
+
+        if (i > 0) {
+            strcat(json_str, ",");
+        }
+        strcat(json_str, value_cstr);
+    }
+
+    strcat(json_str, "]");
+    PyObject* result = PyUnicode_FromString(json_str);
+    free(json_str);
+    return result;
 }
 
 
@@ -313,5 +341,12 @@ static PyObject* cjson_loads(PyObject* self, PyObject* args) {
 
 
 static PyObject* cjson_dumps(PyObject* self, PyObject* args) {
-    
+    PyObject* dict;
+
+    if (!PyArg_ParseTuple(args, "O!", &PyDict_Type, &dict)) {
+        PyErr_SetString(PyExc_RuntimeError, "Invalid input");
+        return NULL;
+    }
+
+    return serialize_object(dict);
 }
