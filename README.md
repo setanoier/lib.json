@@ -14,7 +14,7 @@ The experimental library for parsing and serializing JSON files written in C usi
 
 ## Getting started
 
-To start using the library on your machine, you should install Python and then all the necessary dependencies using `requirements.txt`:
+To start using the library on your machine, you should install Python and then all necessary dependencies using `requirements.txt`:
 
 ```Shell
 sudo apt-get update
@@ -25,5 +25,5 @@ pip install -r requirements.txt
 
 ## References
 
-https://docs.python.org/3/c-api/index.html 
-https://www.youtube.com/watch?v=nHEF1epuuco&ab_channel=TobiasBergkvist
+- https://docs.python.org/3/c-api/index.html 
+- https://www.youtube.com/watch?v=nHEF1epuuco&ab_channel=TobiasBergkvist
