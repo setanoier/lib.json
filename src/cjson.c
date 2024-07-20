@@ -3,7 +3,7 @@
 #include <regex.h>
 
 
-#define BUFFER_SIZE 2048
+#define BUFFER_SIZE 10000000
 
 static PyMethodDef cjson_methods[] = {
         {"loads", cjson_loads, METH_VARARGS, "Parse JSON string"},
@@ -21,11 +21,6 @@ static struct PyModuleDef cjson_module = {
 
 PyMODINIT_FUNC PyInit_cjson() {
     return PyModule_Create(&cjson_module);
-}
-
-
-static PyObject* unmarshall(const char* json_str) {
-    return parse_value(&json_str);
 }
 
 
@@ -104,7 +99,7 @@ static PyObject* parse_value(const char** json_str) {
         Py_RETURN_NONE;
     } else if (**json_str == '-' || (**json_str >= '0' && **json_str <= '9')) {
         const char* start = *json_str;
-        while (**json_str == '-' || (**json_str >= '0' && **json_str <= '9')) {
+        while (**json_str == '-' || (**json_str >= '0' && **json_str <= '9') || **json_str == '.') {
             ++(*json_str);
         }
 
@@ -329,14 +324,7 @@ static PyObject* cjson_loads(PyObject* self, PyObject* args) {
         return NULL;
     }
 
-    PyObject* result = unmarshall(json_str);
-
-    if (!result) {
-        PyErr_SetString(PyExc_RuntimeError, "Invalid JSON string");
-        return NULL;
-    }
-
-    return result;
+    return parse_value(&json_str);
 }
 
 

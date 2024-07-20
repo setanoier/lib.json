@@ -10,7 +10,6 @@ static PyMethodDef cjson_methods[];
 
 static struct PyModuleDef cjson_module;
 
-static PyObject* unmarshall(const char* json_str);
 static PyObject* parse_value(const char** json_str);
 static PyObject* parse_object(const char** json_str);
 static PyObject* parse_list(const char** json_str);
