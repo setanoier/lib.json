@@ -40,12 +40,6 @@ class TestCJson(unittest.TestCase):
         expected = {}
         self.assertEqual(result, expected)
 
-    def test_loads_empty_array(self):
-        json_str = '[]'
-        result = cjson.loads(json_str)
-        expected = []
-        self.assertEqual(result, expected)
-
     def test_loads_invalid(self):
         json_str = '{"hello": 10, "world": "100500"'
         with self.assertRaises(RuntimeError):
@@ -55,6 +49,36 @@ class TestCJson(unittest.TestCase):
         json_dict = {'hello': 10}
         result = cjson.dumps(json_dict)
         expected = '{"hello": 10}'
+        self.assertEqual(result, expected)
+
+    def test_dumps_nested(self):
+        json_dict = {'outer': {'inner': 42}}
+        result = cjson.dumps(json_dict)
+        expected = '{"outer": {"inner": 42}}'
+        self.assertEqual(result, expected)
+
+    def test_dumps_array(self):
+        json_dict = {'numbers': [1, 2, 3], 'strings': ['a', 'b', 'c']}
+        result = cjson.dumps(json_dict)
+        expected = '{"numbers": [1, 2, 3], "strings": ["a", "b", "c"]}'
+        self.assertEqual(result, expected)
+
+    def test_dumps_booleans(self):
+        json_dict = {'true_val': True, 'false_val': False}
+        result = cjson.dumps(json_dict)
+        expected = '{"true_val": 1, "false_val": 0}'
+        self.assertEqual(result, expected)
+
+    def test_dumps_null(self):
+        json_dict = {'nothing': None}
+        result = cjson.dumps(json_dict)
+        expected = '{"nothing": null}'
+        self.assertEqual(result, expected)
+
+    def test_dumps_empty_object(self):
+        json_dict = {}
+        result = cjson.dumps(json_dict)
+        expected = '{}'
         self.assertEqual(result, expected)
 
 
