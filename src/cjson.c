@@ -233,13 +233,13 @@ static PyObject* serialize_object(PyObject* dict) {
         return NULL;
     }
 
-    PyObject* items = PyDict_Items(dict);
-    if (!items) {
+    PyObject* keys = PyDict_Keys(dict);
+    if (!keys) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to extract items");
         return NULL;
     }
 
-    Py_ssize_t size = PyList_Size(items);
+    Py_ssize_t size = PyList_Size(keys);
     char* json_str = malloc(BUFFER_SIZE);
 
     json_str[0] = '\0';
@@ -247,7 +247,7 @@ static PyObject* serialize_object(PyObject* dict) {
     strcat(json_str, "{");
 
     for (Py_ssize_t i = 0; i < size; ++i) {
-        PyObject* key = PyList_GetItem(items, i);
+        PyObject* key = PyList_GetItem(keys, i);
         PyObject* value = PyDict_GetItem(dict, key);
         PyObject* key_str = PyObject_Str(key);
         PyObject* value_str = serialize_value(value);
@@ -257,7 +257,7 @@ static PyObject* serialize_object(PyObject* dict) {
             Py_XDECREF(key_str);
             Py_XDECREF(value_str);
             free(json_str);
-            Py_XDECREF(items);
+            Py_XDECREF(keys);
             return NULL;
         }
 
@@ -265,12 +265,12 @@ static PyObject* serialize_object(PyObject* dict) {
         const char* value_cstr = PyUnicode_AsUTF8(value_str);
 
         if (i > 0) {
-            strcat(json_str, ",");
+            strcat(json_str, ", ");
         }
 
         strcat(json_str, "\"");
         strcat(json_str, key_cstr);
-        strcat(json_str, "\":");
+        strcat(json_str, "\": ");
         strcat(json_str, value_cstr);
 
         Py_DECREF(key_str);
@@ -309,7 +309,7 @@ static PyObject* serialize_list(PyObject* list) {
         const char* value_cstr = PyUnicode_AsUTF8(value_str);
 
         if (i > 0) {
-            strcat(json_str, ",");
+            strcat(json_str, ", ");
         }
         strcat(json_str, value_cstr);
     }
@@ -348,5 +348,5 @@ static PyObject* cjson_dumps(PyObject* self, PyObject* args) {
         return NULL;
     }
 
-    return serialize_object(dict);
+    return serialize_value(dict);
 }
